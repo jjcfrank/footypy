@@ -27,6 +27,7 @@ def get_teams_names(season, league):
     elif league == 'seriea':
         base_url = 'https://understat.com/league/Serie_A/'
 
+    season = str(season)
     match = season
     url = base_url + match
     res = requests.get(url)
@@ -94,6 +95,7 @@ def get_match_data(matchid, side):
     return home_shots
 
 def get_all_data(season, league):
+    season = str(season)
     teams = get_teams_names(season, league)
     all_data = pd.DataFrame()
     single_data = pd.DataFrame()
@@ -122,10 +124,11 @@ def get_all_data(season, league):
 
     return all_data
 
-def get_squads_info(season):
+def get_squads_info(season, league):
 
+    season = str(season)
     all_player_info = pd.DataFrame()
-    teams = get_teams_names(season)
+    teams = get_teams_names(season, league)
 
     for team in teams:
         base_url = 'https://understat.com/team/'+team+'/'
