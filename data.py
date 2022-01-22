@@ -94,7 +94,7 @@ def get_match_data(matchid, side):
 
     return home_shots
 
-def get_all_data(season, league):
+def match_stats(season, league):
     season = str(season)
     teams = get_teams_names(season, league)
     all_data = pd.DataFrame()
@@ -124,7 +124,7 @@ def get_all_data(season, league):
 
     return all_data
 
-def get_squads_info(season, league):
+def players_stats(season, league):
 
     season = str(season)
     all_player_info = pd.DataFrame()
