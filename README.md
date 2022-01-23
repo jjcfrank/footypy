@@ -12,6 +12,8 @@ from footypy.data import match_stats
 
 ### Check leagues available:
 ```python
+#Currently available: Spanish La Liga, English Premier League, French Ligue1, German Bundesliga, Italian Serie A
+
 leagues_available = leagues_available()
 ```
 
@@ -24,13 +26,6 @@ match_data = match_stats(2021, 'laliga')
 ```python
 player_data = players_stats(2021, 'laliga')
 ```
-
-### Leagues available:
-* Spanish La Liga: 'laliga'
-* English Premier League: 'epl'
-* French Ligue1: 'ligue1'
-* German Bundesliga: 'bundesliga'
-* Italian Serie A: 'seriea'
 
 ## 2. Coming soon
 * Analysis functions
