@@ -148,7 +148,22 @@ def players_stats(season, league):
 
         player_data = json.loads(json_player_data)
         player_info = pd.DataFrame(player_data)
-        player_info['team'] = team
+
+        player_info['id'] = player_info['id'].astype('int')
+        player_info['games'] = player_info['games'].astype('int')
+        player_info['time'] = player_info['time'].astype('int')
+        player_info['goals'] = player_info['goals'].astype('int')
+        player_info['xG'] = player_info['xG'].astype('float')
+        player_info['assists'] = player_info['assists'].astype('int')
+        player_info['xA'] = player_info['xA'].astype('float')
+        player_info['shots'] = player_info['shots'].astype('int')
+        player_info['key_passes'] = player_info['key_passes'].astype('int')
+        player_info['yellow_cards'] = player_info['yellow_cards'].astype('int')
+        player_info['red_cards'] = player_info['red_cards'].astype('int')
+        player_info['npg'] = player_info['npg'].astype('int')
+        player_info['npxG'] = player_info['npxG'].astype('float')
+        player_info['xGChain'] = player_info['xGChain'].astype('float')
+        player_info['xGBuildup'] = player_info['xGBuildup'].astype('float')
 
         all_player_info = all_player_info.append(player_info)
 

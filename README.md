@@ -1,6 +1,4 @@
-# README.md
-
-## FootyPy
+# FootyPy
 > FootyPy is a small Python library to extract and analyse football data. It uses libraries such as [BeautifulSoup](https://beautiful-soup-4.readthedocs.io/) and [Pandas](https://pandas.pydata.org) to retrieve data from the www.
 
 <br>
