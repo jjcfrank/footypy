@@ -7,24 +7,24 @@
 
 ### Importing library:
 ``` python
-from footypy.data import match_stats
+import footypy.data as fdata
 ```
 
 ### Check leagues available:
 ```python
 #Currently available: Spanish La Liga, English Premier League, French Ligue1, German Bundesliga, Italian Serie A
 
-leagues_available = leagues_available()
+leagues_available = fdata.leagues_available()
 ```
 
 ### Extracting match data:
 ```python
-match_data = match_stats(2021, 'laliga')
+match_data = fdata.match_stats(2021, 'laliga')
 ```
 
 ### Extracting match data:
 ```python
-player_data = players_stats(2021, 'laliga')
+player_data = fdata.players_stats(2021, 'laliga')
 ```
 
 ## 2. Coming soon
