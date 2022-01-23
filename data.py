@@ -10,6 +10,16 @@ pd.set_option('mode.chained_assignment',None)
 ####################          ####################
 ##################################################
 
+def leagues_available():
+    leagues = {'Spanish La Liga': 'laliga',
+                'English Premier League': 'epl',
+                'French Ligue1': 'ligue1',
+                'German Bundesliga': 'bundesliga',
+                'Italian Serie A': 'seriea'}
+
+    leagues = pd.Series(leagues, name='leagues_available')
+    return leagues
+
 def get_teams_names(season, league):
 
     if league == 'laliga':
