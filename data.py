@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import pandas as pd
+import numpy as np
 pd.set_option('mode.chained_assignment',None)
 
 ##################################################
@@ -257,96 +258,102 @@ def market_value(league, season):
     all_data = pd.DataFrame()
     teams_ids = get_ids(league, season)
 
-    #yw1
-    #   https://www.transfermarkt.co.uk/sevilla-fc/kader/verein/368/saison_id/2021/plus/1
+    for info in teams_ids.itertuples():
+        href_team = info[2]
+        id = info[1]
+        team = info[3]
+        base_url = 'https://www.transfermarkt.co.uk/{}/kader/verein/{}/saison_id/{}/plus/1'.format(href_team, id, season)
+        url = base_url
 
-    test_team = 'sevilla-fc'
-    test_id = '368'
-    test_year = '2021'
-    base_url = 'https://www.transfermarkt.co.uk/{}/kader/verein/{}/saison_id/{}/plus/1'.format(test_team, test_id, test_year)
+        soup = get_headers(base_url)
+        data = soup.find_all("div", {"id": "yw1"})
 
-    soup = get_headers(base_url)
-    data = soup.find_all("div", {"id": "yw1"})
+        number_lst = []
+        for temp_list in data:
+            for number in temp_list.find_all('div', {'class': 'rn_nummer'}):
+                number_lst.append(number.text)
 
-    number_lst = []
-    for temp_list in data:
-        for number in temp_list.find_all('div', {'class': 'rn_nummer'}):
-            number_lst.append(number.text)
+        name_lst = []
+        for temp_list in data:
+            for name in temp_list.find_all('td', {'class': 'hauptlink'}):
+                for link in name.find_all('a'):
+                    name_lst.append(link.text.strip())
+            
 
-    name_lst = []
-    for temp_list in data:
-        for name in temp_list.find_all('td', {'class': 'hauptlink'}):
-            for link in name.find_all('a'):
-                name_lst.append(link.text.strip())
+        position_lst = []
+        for position in soup.select('td.posrela tr:nth-child(2) td'):
+            position_lst.append(position.text.strip())
+
+        bday_lst = []
+        for bday in soup.select('tbody tr td:nth-child(3)'):
+            bday_temp = bday.text.strip()[:-4]
+            if bday_temp == '':
+                pass
+            else:
+                bday_temp = datetime.strptime(bday_temp, '%b %d, %Y').strftime('%Y/%m/%d')
+                bday_lst.append(bday_temp)
+
+        height_lst = []
+        for height in soup.select('tbody tr td:nth-child(5)'):
+            if height.text == ' m':
+                height_lst.append(np.nan)
+            else:
+                height_lst.append(float(height.text.replace(' m', '').replace(',', '.')))
+
+        leading_foot_lst = []
+        for leading_foot in soup.select('tbody tr td:nth-child(6)'):
+            leading_foot_lst.append(leading_foot.text.strip())
+
+        joined_lst = []
+        for joined in soup.select('tbody tr td:nth-child(7)'):
+            joined_temp = joined.text.strip()
+            if joined_temp == '-':
+                pass
+            else:
+                joined_temp = datetime.strptime(joined_temp, '%b %d, %Y').strftime('%Y/%m/%d')
+                joined_lst.append(joined_temp)
+
+        end_contract_lst = []
+        for end_contract in soup.select('tbody tr td:nth-child(9)'):
+            end_contract_temp = end_contract.text.strip()
+            if end_contract_temp == '-':
+                pass
+            else:
+                end_contract_temp = datetime.strptime(end_contract_temp, '%b %d, %Y').strftime('%Y/%m/%d')
+                end_contract_lst.append(end_contract_temp)
+
+        value_lst = []
+        char_cons = []
+        char_cons_value = ''
+        for value in soup.select('tbody tr td:nth-child(10)'):
+            value_temp = value.text
+            for s in list(value_temp):
+                if s.isdigit():
+                    char_cons.append(s)
+
+                elif s == '.':
+                    char_cons.append(s)
+
+            for i in char_cons:
+                char_cons_value = char_cons_value + i
+
+            if char_cons_value[-1] == '.':
+                char_cons_value = char_cons_value[:-1]
+                char_cons_value = '0.' + char_cons_value
+
+            char_cons_value = float(char_cons_value)
+            value_lst.append(char_cons_value)
+
+            char_cons_value = ''
+            char_cons = []
+
+        dict = {'number': number_lst, 'name': name_lst, 'position': position_lst, 'born': bday_lst, 'height': height_lst, 'leading_foot': leading_foot_lst, 'joined': joined_lst, 'end_contract': end_contract_lst, 'market_value': value_lst} 
+        market_value_df = pd.DataFrame(list(dict.values()), index=dict.keys()).T
+        market_value_df['team'] = team
         
 
-    position_lst = []
-    for position in soup.select('td.posrela tr:nth-child(2) td'):
-        position_lst.append(position.text.strip())
+        all_data = all_data.append(market_value_df)
 
-    bday_lst = []
-    for bday in soup.select('tbody tr td:nth-child(3)'):
-        bday_temp = bday.text.strip()[:-4]
-        if bday_temp == '':
-            pass
-        else:
-            bday_temp = datetime.strptime(bday_temp, '%b %d, %Y').strftime('%Y/%m/%d')
-            bday_lst.append(bday_temp)
-
-    height_lst = []
-    for height in soup.select('tbody tr td:nth-child(5)'):
-        height_lst.append(float(height.text.replace(' m', '').replace(',', '.')))
-
-    leading_foot_lst = []
-    for leading_foot in soup.select('tbody tr td:nth-child(6)'):
-        leading_foot_lst.append(leading_foot.text.strip())
-
-    joined_lst = []
-    for joined in soup.select('tbody tr td:nth-child(7)'):
-        joined_temp = joined.text.strip()
-        if joined_temp == '-':
-            pass
-        else:
-            joined_temp = datetime.strptime(joined_temp, '%b %d, %Y').strftime('%Y/%m/%d')
-            joined_lst.append(joined_temp)
-
-    end_contract_lst = []
-    for end_contract in soup.select('tbody tr td:nth-child(9)'):
-        end_contract_temp = end_contract.text.strip()
-        if end_contract_temp == '-':
-            pass
-        else:
-            end_contract_temp = datetime.strptime(end_contract_temp, '%b %d, %Y').strftime('%Y/%m/%d')
-            end_contract_lst.append(end_contract_temp)
-
-    value_lst = []
-    char_cons = []
-    char_cons_value = ''
-    for value in soup.select('tbody tr td:nth-child(10)'):
-        value_temp = value.text
-        for s in list(value_temp):
-            if s.isdigit():
-                char_cons.append(s)
-
-            elif s == '.':
-                char_cons.append(s)
-
-        for i in char_cons:
-            char_cons_value = char_cons_value + i
-
-        if char_cons_value[-1] == '.':
-            char_cons_value = char_cons_value[:-1]
-            char_cons_value = '0.' + char_cons_value
-
-        char_cons_value = float(char_cons_value)
-        value_lst.append(char_cons_value)
-
-        char_cons_value = ''
-        char_cons = []
-
-    dict = {'number': number_lst, 'name': name_lst, 'position': position_lst, 'born': bday_lst, 'height': height_lst, 'leading_foot': leading_foot_lst, 'joined': joined_lst, 'end_contract': end_contract_lst, 'market_value': value_lst} 
-    market_value_df = pd.DataFrame(list(dict.values()), index=dict.keys()).T
-
-    return market_value_df
+    return all_data
 
 ### END TRANSFERMARKT
